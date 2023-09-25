@@ -1,3 +1,13 @@
+-- require 'tl'.loader()
+
+lithium = require 'lithium.init'
+ltable = lithium.table
+lio = lithium.io
+lstring = lithium.string
+lmath = lithium.math
+color = lithium.color
+vec2 = lithium.vec2
+
 function love.conf(t)
 	t.window.display = 2
 	t.window.height = 720

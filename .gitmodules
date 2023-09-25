@@ -1,0 +1,3 @@
+[submodule "lithium"]
+	path = lithium
+	url = https://github.com/icy-lava/lithium
