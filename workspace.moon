@@ -8,15 +8,18 @@ class Workspace
 		@modules = {}
 	
 	update: (dt) =>
-		
+		@hoveredSocket = @getHoveredSocket vec2 love.mouse.getPosition!
 	
 	draw: =>
 		lg.clear 0.1, 0.1, 0.12, 1
-		lg.push 'all'
 		
+		lg.push 'all'
 		-- Draw module bodies
 		for module in *@modules
+			lg.push 'all'
+			lg.translate module.pos.x, module.pos.y
 			module\draw!
+			lg.pop!
 		
 		-- Draw module connections
 		lg.setColor 0.4, 0.35, 0.7
@@ -25,8 +28,8 @@ class Workspace
 		for module in *@modules
 			for connection in *module.inputConnections
 				other = connection[1]
-				opos = vec2 other.x, other.y
-				mpos = vec2 module.x, module.y
+				opos = other.pos
+				mpos = module.pos
 				p1 = opos + other\getOutputPosition connection[2]
 				p2 = mpos + module\getInputPosition connection[3]
 				middleX = (p1.x + p2.x) / 2
@@ -36,7 +39,50 @@ class Workspace
 				line = curve\render 3
 				love.graphics.line line
 		
+		-- Draw module sockets
+		for module in *@modules
+			lg.push 'all'
+			lg.translate module.pos.x, module.pos.y
+			module\drawSockets!
+			lg.pop!
+		
 		lg.pop!
+	
+	keypressed: =>
+	keyreleased: =>
+	mousepressed: (x, y, button) =>
+		mpos = vec2 x, y
+		if button == 1
+			print @getHoveredTitle mpos
+	
+	mousereleased: =>
+	
+	getModuleInputPosition: (module, index) => module.pos + module\getInputPosition index
+	getModuleOutputPosition: (module, index) => module.pos + module\getOutputPosition index
+	
+	getHoveredTitle: (point) =>
+		for _, module in ltable.ripairs @modules
+			tl = module.pos
+			br = tl + vec2 module.size.x, module.labelHeight
+			if point.x >= tl.x and point.y >= tl.y and point.x < br.x and point.y < br.y
+				return nil if @hoveredSocket
+				return module
+		return nil
+	
+	getHoveredSocket: (point) =>
+		minDist = math.huge
+		local minSocket
+		for module in *@modules
+			for i = 1, module\getInputCount!
+				pos = @getModuleInputPosition module, i
+				dist = pos\dist point
+				minDist, minSocket = dist, {module, i, true} if dist < minDist
+			for i = 1, module\getOutputCount!
+				pos = @getModuleOutputPosition module, i
+				dist = pos\dist point
+				minDist, minSocket = dist, {module, i, false} if dist < minDist
+		return minSocket if minDist <= 24
+		return nil
 	
 	addModule: (mod) =>
 		mod.workspace = @
