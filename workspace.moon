@@ -3,14 +3,20 @@ lg = love.graphics
 class Workspace
 	new: (@sampleRate, @channelCount, @bitDepth = 16, @bufferCount = 4, @bufferSize = 1024) =>
 		@generation = 0
-		@source = love.audio.newQueueableSource sampleRate, bitDepth, channelCount, bufferCount
-		@source\setVolume 0.1
+		-- @source = love.audio.newQueueableSource sampleRate, bitDepth, channelCount, bufferCount
+		-- @source\setVolume 0.1
 		@modules = {}
+		@mode = { kind: 'none' }
 	
 	update: (dt) =>
-		@hoveredSocket = @getHoveredSocket vec2 love.mouse.getPosition!
+		mpos = vec2 love.mouse.getPosition!
+		@hoveredSocket = @getHoveredSocket mpos
+		if @mode.kind == 'position'
+			delta = @mode.fromPoint\delta mpos
+			@mode.module.pos = @mode.fromPos + delta
 	
 	draw: =>
+		mpos = vec2 love.mouse.getPosition!
 		lg.clear 0.1, 0.1, 0.12, 1
 		
 		lg.push 'all'
@@ -27,17 +33,17 @@ class Workspace
 		lg.setLineWidth 4
 		for module in *@modules
 			for connection in *module.inputConnections
-				other = connection[1]
-				opos = other.pos
-				mpos = module.pos
-				p1 = opos + other\getOutputPosition connection[2]
-				p2 = mpos + module\getInputPosition connection[3]
-				middleX = (p1.x + p2.x) / 2
-				c1 = vec2 middleX, p1.y
-				c2 = vec2 middleX, p2.y
-				curve = love.math.newBezierCurve p1.x, p1.y, c1.x, c1.y, c2.x, c2.y, p2.x, p2.y
-				line = curve\render 3
-				love.graphics.line line
+				p1 = @getModuleOutputPosition connection[1], connection[2]
+				p2 = @getModuleInputPosition module, connection[3]
+				@drawConnection p1, p2
+		
+		if @mode.kind == 'connect'
+			socket = @mode.from
+			output = @getModuleOutputPosition socket[1], socket[2]
+			input = mpos
+			if @hoveredSocket and @hoveredSocket[3]
+				input = @getModuleInputPosition @hoveredSocket[1], @hoveredSocket[2]
+			@drawConnection output, input
 		
 		-- Draw module sockets
 		for module in *@modules
@@ -48,14 +54,38 @@ class Workspace
 		
 		lg.pop!
 	
+	drawConnection: (fromOutputPoint, toInputPoint) =>
+		middleX = (fromOutputPoint.x + toInputPoint.x) / 2
+		c1 = vec2 middleX, fromOutputPoint.y
+		c2 = vec2 middleX, toInputPoint.y
+		curve = love.math.newBezierCurve fromOutputPoint.x, fromOutputPoint.y, c1.x, c1.y, c2.x, c2.y, toInputPoint.x, toInputPoint.y
+		line = curve\render 4
+		love.graphics.line line
+	
 	keypressed: =>
 	keyreleased: =>
 	mousepressed: (x, y, button) =>
 		mpos = vec2 x, y
 		if button == 1
-			print @getHoveredTitle mpos
+			socket = @getHoveredSocket mpos
+			if socket
+				return if socket[3] -- Can't drag from input
+				@mode = {
+					kind: 'connect'
+					from: socket
+				}
+				return
+			title = @getHoveredTitle mpos
+			if title
+				@mode = {
+					kind: 'position'
+					fromPoint: mpos.copy
+					fromPos: title.pos.copy
+					module: title
+				}
 	
-	mousereleased: =>
+	mousereleased: (x, y, button) =>
+		@mode = { kind: 'none' }
 	
 	getModuleInputPosition: (module, index) => module.pos + module\getInputPosition index
 	getModuleOutputPosition: (module, index) => module.pos + module\getOutputPosition index
@@ -92,6 +122,6 @@ class Workspace
 		for i = 1, #@modules
 			if @modules[i] == mod
 				mod.workspace = nil
-				table.remove modules, i
+				table.remove @modules, i
 				return
 		error "could not find module in workspace"
