@@ -1,4 +1,4 @@
-export love, vec2, ltable, lmath
+export love, util, vec2, ltable, lmath
 
 cam11 = require 'cam11'
 lg = love.graphics
@@ -11,6 +11,7 @@ class Workspace
 		-- @source\setVolume 0.1
 		@modules = {}
 		@mode = { kind: 'none' }
+		@rmode = { kind: 'none' }
 		@cam = cam11!
 		@zoom = 0
 		@cam\setZoom @getZoomAmount!
@@ -65,12 +66,14 @@ class Workspace
 			lg.pop!
 		
 		-- Draw module connections
-		lg.setColor 0.4, 0.35, 0.7
 		lg.setLineWidth 4
 		for module in *@modules
 			for connection in *module.inputConnections
 				p1 = @getModuleOutputPosition connection[1], connection[2]
 				p2 = @getModuleInputPosition module, connection[3]
+				lg.setColor 0.4, 0.35, 0.7, 1
+				if @rmode.kind == 'cut' and @checkConnectionIntersects p1, p2, @getCutLine!
+					lg.setColor 0.9, 0.1, 0.1, 1
 				@drawConnection p1, p2
 		
 		if @mode.kind == 'connect'
@@ -79,6 +82,7 @@ class Workspace
 			input = wpos
 			if @hoveredSocket and @hoveredSocket[3]
 				input = @getModuleInputPosition @hoveredSocket[1], @hoveredSocket[2]
+			lg.setColor 0.4, 0.35, 0.7, 1
 			@drawConnection output, input
 		
 		-- Draw module sockets
@@ -86,6 +90,15 @@ class Workspace
 			lg.push 'all'
 			lg.translate module.pos.x, module.pos.y
 			module\drawSockets!
+			lg.pop!
+		
+		-- Draw cut
+		if @rmode.kind == 'cut'
+			lg.push 'all'
+			start, stop = @getCutLine!
+			lg.setLineWidth 4 / @getZoomAmount!
+			lg.setColor 0.9, 0.1, 0.1, 1
+			lg.line start.x, start.y, stop.x, stop.y
 			lg.pop!
 		
 		-- Draw selection
@@ -112,11 +125,24 @@ class Workspace
 		lg.pop!
 		@cam\detach!
 	
-	drawConnection: (fromOutputPoint, toInputPoint) =>
+	getConnectionBezier: (fromOutputPoint, toInputPoint) =>
 		middleX = (fromOutputPoint.x + toInputPoint.x) / 2
 		c1 = vec2 middleX, fromOutputPoint.y
 		c2 = vec2 middleX, toInputPoint.y
-		curve = love.math.newBezierCurve fromOutputPoint.x, fromOutputPoint.y, c1.x, c1.y, c2.x, c2.y, toInputPoint.x, toInputPoint.y
+		return love.math.newBezierCurve fromOutputPoint.x, fromOutputPoint.y, c1.x, c1.y, c2.x, c2.y, toInputPoint.x, toInputPoint.y
+	
+	checkConnectionIntersects: (fromOutputPoint, toInputPoint, p1, p2) =>
+		curve = @getConnectionBezier fromOutputPoint, toInputPoint
+		line = curve\render 2
+		ppoint, cpoint = nil, vec2 line[1], line[2]
+		for i = 3, #line, 2
+			ppoint = cpoint
+			cpoint = vec2 line[i], line[i + 1]
+			return true if util.checkLinesIntersect ppoint, cpoint, p1, p2
+		return false
+	
+	drawConnection: (fromOutputPoint, toInputPoint) =>
+		curve = @getConnectionBezier fromOutputPoint, toInputPoint
 		line = curve\render 4
 		love.graphics.line line
 	
@@ -161,6 +187,11 @@ class Workspace
 				kind: 'select'
 				fromPoint: wpos.copy
 			}
+		if button == 2
+			@rmode = {
+				kind: 'cut'
+				fromPoint: wpos.copy
+			}
 		if button == 3
 			@dragInfo = {
 				fromPoint: wpos.copy
@@ -182,6 +213,16 @@ class Workspace
 				
 			@mode = { kind: 'none' }
 			return
+		if button == 2
+			if @rmode.kind == 'cut'
+				for module in *@modules
+					for i, connection in ltable.ripairs module.inputConnections
+						p1 = @getModuleOutputPosition connection[1], connection[2]
+						p2 = @getModuleInputPosition module, connection[3]
+						if @checkConnectionIntersects p1, p2, @getCutLine!
+							table.remove module.inputConnections, i
+			@rmode = { kind: 'none' }
+			return
 		if button == 3
 			@dragInfo = nil
 			return
@@ -200,6 +241,10 @@ class Workspace
 	
 	getModuleInputPosition: (module, index) => module.pos + module\getInputPosition index
 	getModuleOutputPosition: (module, index) => module.pos + module\getOutputPosition index
+	
+	getCutLine: =>
+		return nil if @rmode.kind != 'cut'
+		return @rmode.fromPoint, @getMousePos!
 	
 	getMousePos: => vec2 @cam\toWorld love.mouse.getPosition!
 	

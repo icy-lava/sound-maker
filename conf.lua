@@ -8,6 +8,7 @@ lstring = lithium.string
 lmath = lithium.math
 color = lithium.color
 vec2 = lithium.vec2
+util = require 'util'
 
 function love.conf(t)
 	t.window.title = 'Sound Maker'
