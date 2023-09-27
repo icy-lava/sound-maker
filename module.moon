@@ -1,6 +1,5 @@
 export love, vec2, lmath
-ffi = require 'ffi'
-floatSize = ffi.sizeof 'float'
+buffer = require 'buffer'
 lg = love.graphics
 
 class Module
@@ -8,9 +7,9 @@ class Module
 	font: lg.newFont 18
 	labelHeight: 40
 	
-	new: (@pos = vec2!) =>
-		@inputs = {1, 2, 5, 5}
-		@outputs = {3, 3, 3}
+	new: (@workspace, @pos = vec2!) =>
+		@inputs = {}
+		@outputs = {}
 		@inputConnections = {}
 		@size = vec2 64 * 5, 64 * 4
 	
@@ -84,22 +83,30 @@ class Module
 	getBufferSize: => @workspace.bufferSize
 	getStart: => @generation * @workspace.bufferSize
 	
-	@sameConnection: (a, b) => a[1] == b[1] and a[2] == b[2]
+	setInputCount: (count) =>
+		while @getInputCount! < count
+			table.insert @inputs, buffer.new @getBufferSize!
+		while @getInputCount! > count
+			table.remove @inputs
+	
+	setOutputCount: (count) =>
+		while @getOutputCount! < count
+			table.insert @outputs, buffer.new @getBufferSize!
+		while @getOutputCount! > count
+			table.remove @outputs
 	
 	connect: (other, otherOutput, input) =>
 		table.insert @inputConnections, {other, otherOutput, input}
 	
-	receiveInputs: (generation) =>
-		assert generation
-		
+	receiveInputs: =>
 		for i = 1, @getInputCount!
 			-- zero-fill buffer
-			ffi.fill @getInput(i).buffer, @getBufferSize! * floatSize
+			buffer.zero @getInput(i), @getBufferSize!
 		
 		for _, connection in ipairs(@inputConnections)
-			connection[1]\process generation
-			ibuf = @getInput(connection[3]).buffer
-			obuf = connection[1]\getOutput(connection[2]).buffer
+			connection[1]\process!
+			ibuf = @getInput(connection[3])
+			obuf = connection[1]\getOutput(connection[2])
 			for i = 0, @getBufferSize! - 1
 				ibuf[i] = ibuf[i] + obuf[i]
 	
@@ -107,6 +114,6 @@ class Module
 	getOutputPosition: (index) => vec2 @size.x - 2, @labelHeight + 24 + 40 * (index - 1)
 	
 	getInput: (index) => assert @inputs[index]
-	getInputCount: (index) => #@inputs
+	getInputCount: => #@inputs
 	getOutput: (index) => assert @outputs[index]
-	getOutputCount: (index) => #@outputs
+	getOutputCount: => #@outputs

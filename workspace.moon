@@ -1,5 +1,6 @@
 export love, util, vec2, ltable, lmath
 
+buffer = require 'buffer'
 cam11 = require 'cam11'
 lg = love.graphics
 
@@ -7,6 +8,7 @@ class Workspace
 	gridSize: vec2 64, 64
 	new: (@sampleRate, @channelCount, @bitDepth = 16, @bufferCount = 4, @bufferSize = 1024) =>
 		@generation = 0
+		@lastGeneration = @generation - 1
 		-- @source = love.audio.newQueueableSource sampleRate, bitDepth, channelCount, bufferCount
 		-- @source\setVolume 0.1
 		@modules = {}
@@ -15,6 +17,9 @@ class Workspace
 		@cam = cam11!
 		@zoom = 0
 		@cam\setZoom @getZoomAmount!
+		@outputPreBuffer = buffer.new bufferSize
+		@outputBuffer = love.sound.newSoundData bufferSize, sampleRate, bitDepth, channelCount
+		@outputSource = love.audio.newQueueableSource sampleRate, bitDepth, channelCount, bufferCount
 	
 	update: (dt) =>
 		wpos = @getMousePos!
@@ -33,6 +38,29 @@ class Workspace
 		if @dragInfo
 			delta = wpos\delta @dragInfo.fromPoint
 			@cam\setPos (delta + vec2 @cam\getPos!)\split!
+		
+		while true
+			-- Only process if not processed already for this generation
+			if @generation != @lastGeneration
+				fromBuf = @outputPreBuffer
+				toBuf = @outputBuffer
+				
+				-- Process modules
+				buffer.zero fromBuf, @bufferSize
+				for module in *@modules
+					module\receiveInputs! if module\getInputCount! > 0
+					module\process!
+				
+				-- Take from sound output modules
+				for i = 0, @bufferSize - 1
+					toBuf\setSample i, fromBuf[i]
+				
+				@lastGeneration = @generation
+			-- Try to queue up the buffer
+			status = @outputSource\queue @outputBuffer
+			@outputSource\play! unless @outputSource\isPlaying!
+			break unless status
+			@generation += 1
 	
 	draw: =>
 		wpos = @getMousePos!
@@ -76,14 +104,16 @@ class Workspace
 					lg.setColor 0.9, 0.1, 0.1, 1
 				@drawConnection p1, p2
 		
+		-- Draw dragged connection
 		if @mode.kind == 'connect'
 			socket = @mode.from
 			output = @getModuleOutputPosition socket[1], socket[2]
-			input = wpos
-			if @hoveredSocket and @hoveredSocket[3]
-				input = @getModuleInputPosition @hoveredSocket[1], @hoveredSocket[2]
-			lg.setColor 0.4, 0.35, 0.7, 1
-			@drawConnection output, input
+			if output\dist(wpos) > 16
+				input = wpos
+				if @hoveredSocket and @hoveredSocket[3]
+					input = @getModuleInputPosition @hoveredSocket[1], @hoveredSocket[2]
+				lg.setColor 0.4, 0.35, 0.7, 1
+				@drawConnection output, input
 		
 		-- Draw module sockets
 		for module in *@modules
@@ -126,9 +156,12 @@ class Workspace
 		@cam\detach!
 	
 	getConnectionBezier: (fromOutputPoint, toInputPoint) =>
-		middleX = (fromOutputPoint.x + toInputPoint.x) / 2
-		c1 = vec2 middleX, fromOutputPoint.y
-		c2 = vec2 middleX, toInputPoint.y
+		c1x = lmath.lerp 1 / 2, fromOutputPoint.x, toInputPoint.x
+		c2x = lmath.lerp 1 / 2, fromOutputPoint.x, toInputPoint.x
+		c1x = math.max c1x, fromOutputPoint.x + 96
+		c2x = math.min c2x, toInputPoint.x - 96
+		c1 = vec2 c1x, fromOutputPoint.y
+		c2 = vec2 c2x, toInputPoint.y
 		return love.math.newBezierCurve fromOutputPoint.x, fromOutputPoint.y, c1.x, c1.y, c2.x, c2.y, toInputPoint.x, toInputPoint.y
 	
 	checkConnectionIntersects: (fromOutputPoint, toInputPoint, p1, p2) =>
@@ -302,7 +335,8 @@ class Workspace
 		return nil
 	
 	addModule: (mod) =>
-		mod.workspace = @
+		-- NOTE: We're setting the workspace in the constructor, that's kinda sus but whatever
+		-- mod.workspace = @
 		table.insert @modules, mod
 	removeModule: (mod) =>
 		assert mod.workspace == @, "trying to remove a module that doesn't belong to the workspace"

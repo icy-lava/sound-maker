@@ -1,5 +1,7 @@
 local Workspace = require 'workspace'
 local Module = require 'module'
+local Sine = require 'module.sine'
+local Output = require 'module.output'
 
 local sampleRate = 48000
 local bitDepth = 16
@@ -11,12 +13,12 @@ local workspace
 
 function love.load()
 	workspace = Workspace(sampleRate, channelCount)
-	local modA = Module(vec2(600, 50))
-	local modB = Module(vec2(100, 100))
-	modA:connect(modB, 1, 1)
-	
+	local modA = Sine(workspace, vec2(600, 50))
+	local modB = Sine(workspace, vec2(100, 100))
+	local modC = Output(workspace, vec2(1000, 50))
 	workspace:addModule(modA)
 	workspace:addModule(modB)
+	workspace:addModule(modC)
 end
 
 function love.keypressed(...)
