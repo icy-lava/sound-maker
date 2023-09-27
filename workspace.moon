@@ -48,7 +48,6 @@ class Workspace
 				-- Process modules
 				buffer.zero fromBuf, @bufferSize
 				for module in *@modules
-					module\receiveInputs! if module\getInputCount! > 0
 					module\process!
 				
 				-- Take from sound output modules

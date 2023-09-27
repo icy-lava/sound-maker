@@ -17,8 +17,9 @@ class Module
 	
 	process: =>
 		if @generation ~= @workspace.generation
-			@_process! if @_process
 			@generation = @workspace.generation
+			@receiveInputs!
+			@_process! if @_process
 	
 	draw: =>
 		lg.push 'all'
@@ -100,13 +101,12 @@ class Module
 	
 	receiveInputs: =>
 		for i = 1, @getInputCount!
-			-- zero-fill buffer
 			buffer.zero @getInput(i), @getBufferSize!
 		
-		for _, connection in ipairs(@inputConnections)
+		for _, connection in ipairs @inputConnections
 			connection[1]\process!
-			ibuf = @getInput(connection[3])
-			obuf = connection[1]\getOutput(connection[2])
+			ibuf = @getInput connection[3]
+			obuf = connection[1]\getOutput connection[2]
 			for i = 0, @getBufferSize! - 1
 				ibuf[i] = ibuf[i] + obuf[i]
 	

@@ -1,6 +1,7 @@
 local Workspace = require 'workspace'
 local Module = require 'module'
 local Sine = require 'module.sine'
+local Delay = require 'module.delay'
 local Output = require 'module.output'
 
 local sampleRate = 48000
@@ -14,7 +15,7 @@ local workspace
 function love.load()
 	workspace = Workspace(sampleRate, channelCount)
 	local modA = Sine(workspace, vec2(600, 50))
-	local modB = Sine(workspace, vec2(100, 100))
+	local modB = Delay(workspace, vec2(100, 100))
 	local modC = Output(workspace, vec2(1000, 50))
 	workspace:addModule(modA)
 	workspace:addModule(modB)
