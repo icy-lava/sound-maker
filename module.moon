@@ -1,3 +1,4 @@
+export love, vec2, lmath
 ffi = require 'ffi'
 floatSize = ffi.sizeof 'float'
 lg = love.graphics
@@ -11,7 +12,7 @@ class Module
 		@inputs = {1, 2, 5, 5}
 		@outputs = {3, 3, 3}
 		@inputConnections = {}
-		@size = vec2 280, 240
+		@size = vec2 64 * 5, 64 * 4
 	
 	_process: => error 'process is not implemented'
 	
@@ -22,6 +23,19 @@ class Module
 	
 	draw: =>
 		lg.push 'all'
+		if @selected
+			lg.push 'all'
+			pad = 24
+			radius = @labelHeight / 2 + pad
+			pad = vec2 pad, pad
+			size = @size + pad * 2
+			lg.setColor 0.6, 0.5, 0.9, 0.2
+			lg.rectangle 'fill', -pad.x, -pad.y, size.x, size.y, radius, nil, 32
+			lg.setLineWidth 4
+			lg.setColor 0.4, 0.4, 0.7, 1
+			lg.rectangle 'line', -pad.x, -pad.y, size.x, size.y, radius, nil, 32
+			lg.pop!
+		
 		lg.stencil -> lg.rectangle 'fill', 0, 0, @size.x, @size.y, @labelHeight / 2, nil, 32
 		lg.setStencilTest "greater", 0
 		
@@ -36,7 +50,7 @@ class Module
 		lg.setFont @font
 		fx = lmath.round (@size.x - @font\getWidth @name) / 2
 		fy = lmath.round (@labelHeight - @font\getHeight!) / 2
-		lg.setColor 0.1, 0.1, 0.15, 1
+		lg.setColor 0.4, 0.4, 0.45, 1
 		lg.print @name, fx, fy
 		
 		@_draw! if @_draw
@@ -69,6 +83,8 @@ class Module
 		
 	getBufferSize: => @workspace.bufferSize
 	getStart: => @generation * @workspace.bufferSize
+	
+	@sameConnection: (a, b) => a[1] == b[1] and a[2] == b[2]
 	
 	connect: (other, otherOutput, input) =>
 		table.insert @inputConnections, {other, otherOutput, input}

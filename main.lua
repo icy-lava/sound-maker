@@ -47,6 +47,14 @@ function love.mousereleased(...)
 	workspace:mousereleased(...)
 end
 
+function love.wheelmoved(...)
+	workspace:wheelmoved(...)
+end
+
+function love.resize(...)
+	workspace:resize(...)
+end
+
 function love.update(dt)
 	workspace:update(dt)
 end
