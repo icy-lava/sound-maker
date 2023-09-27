@@ -1,4 +1,4 @@
-export love, vec2, lmath
+export love, vec2, lmath, ltable
 buffer = require 'buffer'
 lg = love.graphics
 
@@ -8,6 +8,7 @@ class Module
 	labelHeight: 40
 	
 	new: (@workspace, @pos = vec2!) =>
+		@widgets = {}
 		@inputs = {}
 		@outputs = {}
 		@inputConnections = {}
@@ -21,8 +22,15 @@ class Module
 			@receiveInputs!
 			@_process! if @_process
 	
+	update: (dt) =>
+		for widget in *@widgets
+			widget\update dt
+		@_update dt if @_update
+	
 	draw: =>
 		lg.push 'all'
+		
+		-- Draw selectedness
 		if @selected
 			lg.push 'all'
 			pad = 24
@@ -55,8 +63,40 @@ class Module
 		
 		@_draw! if @_draw
 		
+		-- Draw widgets
+		for _, widget in ltable.ripairs @widgets
+			lg.push 'all'
+			lg.translate widget.pos.x, widget.pos.y + @labelHeight
+			widget\draw!
+			lg.pop!
+		
 		lg.setStencilTest!
 		lg.pop!
+	
+	getWidgetAtPoint: (point) =>
+		for _, widget in ltable.ripairs @widgets
+			tl = widget.pos
+			br = tl + widget.size
+			return widget if point.x >= tl.x and point.y >= tl.y and point.x < br.x and point.y < br.y
+		return nil
+	
+	getMousePos: => @workspace\getMousePos! - @pos - vec2 0, @labelHeight
+	
+	mousepressed: (x, y, button) =>
+		widget = @getWidgetAtPoint vec2 x, y
+		if widget
+			wpos = widget.pos
+			widget\mousepressed x - wpos.x, y - wpos.y, button
+			@activeWidget = widget
+			return
+		@_mousepressed x, y, button if @_mousepressed
+	mousereleased: (x, y, button) =>
+		if @activeWidget
+			wpos = @activeWidget.pos
+			@activeWidget\mousereleased x - wpos.x, y - wpos.y, button
+			@activeWidget = nil
+			return
+		@_mousereleased x, y, button if @_mousereleased
 	
 	drawSockets: =>
 		for i = 1, @getInputCount!  do @drawSocket i, true
@@ -83,6 +123,13 @@ class Module
 		
 	getBufferSize: => @workspace.bufferSize
 	getStart: => @generation * @workspace.bufferSize
+	
+	getHoveredWidget: (point) =>
+		for _, widget in ltable.ripairs @widgets
+			tl = widget.pos
+			br = tl + widget.size
+			return widget if point.x >= tl.x and point.y >= tl.y and point.x < br.x and point.y < br.y
+		return nil
 	
 	setInputCount: (count) =>
 		while @getInputCount! < count

@@ -22,8 +22,10 @@ class Workspace
 		@outputSource = love.audio.newQueueableSource sampleRate, bitDepth, channelCount, bufferCount
 	
 	update: (dt) =>
+		for module in *@modules
+			module\update dt
 		wpos = @getMousePos!
-		@hoveredSocket = @getHoveredSocket wpos
+		@hoveredSocket = @getSocketAtPoint wpos
 		if @mode.kind == 'position'
 			delta = @mode.fromPoint\delta wpos
 			pos = @mode.fromPos + delta
@@ -94,6 +96,7 @@ class Workspace
 		
 		-- Draw module connections
 		lg.setLineWidth 4
+		lg.setLineJoin 'bevel'
 		for module in *@modules
 			for connection in *module.inputConnections
 				p1 = @getModuleOutputPosition connection[1], connection[2]
@@ -188,7 +191,7 @@ class Workspace
 	mousepressed: (x, y, button) =>
 		wpos = @getMousePos!
 		if button == 1
-			socket = @getHoveredSocket wpos
+			socket = @getSocketAtPoint wpos
 			if socket
 				if socket[3] -- Try disconnect from input
 					for i, connection in ltable.ripairs socket[1].inputConnections
@@ -205,15 +208,23 @@ class Workspace
 					from: socket
 				}
 				return
-			title = @getHoveredTitle wpos
-			if title
-				@mode = {
-					kind: 'position'
-					fromPoint: wpos.copy
-					fromPos: title.pos.copy
-					module: title
-				}
+			
+			module = @getModuleAtPoint wpos
+			if module
+				if wpos.y < module.pos.y + module.labelHeight
+					@mode = {
+						kind: 'position'
+						fromPoint: wpos.copy
+						fromPos: module.pos.copy
+						module: module
+					}
+					return
+				mpos = module.pos
+				module\mousepressed wpos.x - mpos.x, wpos.y - mpos.y - module.labelHeight
+				@activeModule = module
 				return
+			
+			-- Do selection
 			@clearSelected!
 			@mode = {
 				kind: 'select'
@@ -230,9 +241,15 @@ class Workspace
 			}
 	
 	mousereleased: (x, y, button) =>
+		wpos = @getMousePos!
 		if button == 1
+			if @activeModule
+				mpos = @activeModule.pos
+				@activeModule\mousereleased wpos.x - mpos.x, wpos.y - mpos.y - @activeModule.labelHeight
+				@activeModule = nil
+				return
 			if @mode.kind == 'connect'
-				to = @getHoveredSocket @getMousePos!
+				to = @getSocketAtPoint @getMousePos!
 				if to and to[3] -- Is input socket
 					output, outputIndex = @mode.from[1], @mode.from[2]
 					input, inputIndex = to[1], to[2]
@@ -309,16 +326,16 @@ class Workspace
 		mbr = mtl + module.size
 		return tl.x <= mtl.x and tl.y <= mtl.y and br.x >= mbr.x and br.y >= mbr.y
 	
-	getHoveredTitle: (point) =>
+	getModuleAtPoint: (point) =>
 		for _, module in ltable.ripairs @modules
 			tl = module.pos
-			br = tl + vec2 module.size.x, module.labelHeight
+			br = tl + module.size
 			if point.x >= tl.x and point.y >= tl.y and point.x < br.x and point.y < br.y
 				return nil if @hoveredSocket
 				return module
 		return nil
 	
-	getHoveredSocket: (point) =>
+	getSocketAtPoint: (point) =>
 		minDist = math.huge
 		local minSocket
 		for module in *@modules

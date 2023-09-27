@@ -20,8 +20,8 @@ class Sine extends require 'module'
 			
 			delayOffset = math.min(@delay, @maxDelay) / @maxDelay
 			index = @delayIndex - (@delaySamples - 1) * delayOffset
-			index0 = math.floor index % @delaySamples
-			index1 = math.ceil index % @delaySamples
+			index0 = math.floor(index) % @delaySamples
+			index1 = math.ceil(index) % @delaySamples
 			fraction = index % 1
 			sample = lmath.lerp fraction, @delayBuffer[index0], @delayBuffer[index1]
 			
