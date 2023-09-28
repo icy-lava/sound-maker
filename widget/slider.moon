@@ -15,6 +15,7 @@ class Slider extends require 'widget'
 		if @isActive!
 			mx = @getMousePos!.x
 			@value = lmath.map mx, 0, @size.x, @minValue, @maxValue
+			@value = lmath.roundStep @value, @step if @step
 			@value = lmath.clamp @value, @minValue, @maxValue
 	_draw: =>
 		-- Draw background
