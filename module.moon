@@ -87,14 +87,22 @@ class Module
 		if widget
 			wpos = widget.pos
 			widget\mousepressed x - wpos.x, y - wpos.y, button
-			@activeWidget = widget
+			if button == 1
+				@activeWidget = widget
+			elseif button == 2
+				@ractiveWidget = widget
 			return
 		@_mousepressed x, y, button if @_mousepressed
 	mousereleased: (x, y, button) =>
-		if @activeWidget
+		if button == 1 and @activeWidget
 			wpos = @activeWidget.pos
 			@activeWidget\mousereleased x - wpos.x, y - wpos.y, button
 			@activeWidget = nil
+			return
+		if button == 2 and @ractiveWidget
+			wpos = @ractiveWidget.pos
+			@ractiveWidget\mousereleased x - wpos.x, y - wpos.y, button
+			@ractiveWidget = nil
 			return
 		@_mousereleased x, y, button if @_mousereleased
 	

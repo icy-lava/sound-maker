@@ -3,10 +3,14 @@ lg = love.graphics
 class Slider extends require 'widget'
 	new: (...) =>
 		super ...
-		@value = 0.5
+		@defaultValue = 0.5
+		@value = @defaultValue
 		@minValue = 0
 		@maxValue = 1
 	getLabel: => string.format '%0.2f', @value
+	_mousereleased: (x, y, button) =>
+		if button == 2
+			@value = @defaultValue
 	_update: (dt) =>
 		if @isActive!
 			mx = @getMousePos!.x

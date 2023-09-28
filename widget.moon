@@ -15,3 +15,4 @@ class Widget
 	
 	getMousePos: => @module\getMousePos! - @pos
 	isActive: => @ == @module.activeWidget
+	isRActive: => @ == @module.ractiveWidget

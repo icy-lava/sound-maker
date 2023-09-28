@@ -12,9 +12,12 @@ class Sine extends require 'module'
 		@minAmp = 0
 		@maxAmp = 2
 		@minDB = -96
+		@defaultAmp = 1
+		@defaultDB = 0
 		
 		@slider = Slider @, vec2(32, 24), vec2 96 * 2, 40
-		@slider.value = 1
+		@slider.defaultValue = @defaultAmp
+		@slider.value = @slider.defaultValue
 		@slider.minValue = @minAmp
 		@slider.maxValue = @maxAmp
 		
@@ -27,12 +30,14 @@ class Sine extends require 'module'
 			slider = amp.slider
 			if @status
 				amp.asDB = true
+				slider.defaultValue = amp.defaultDB
 				slider.value = util.amp2db slider.value
 				slider.minValue = amp.minDB
 				slider.maxValue = util.amp2db amp.maxAmp
 				lmath.clamp slider.value, slider.minValue, slider.maxValue
 			else
 				amp.asDB = false
+				slider.defaultValue = amp.defaultAmp
 				slider.value = if slider.value <= -96
 					0
 				else

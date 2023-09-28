@@ -5,7 +5,8 @@ class Button extends require 'widget'
 		super ...
 		@label = '?'
 	_mousereleased: (x, y, button) =>
-		@action! if @action and x >= 0 and y >= 0 and x < @size.x and y < @size.y
+		if button == 1
+			@action! if @action and x >= 0 and y >= 0 and x < @size.x and y < @size.y
 	_draw: =>
 		-- Draw background
 		lg.setColor 0.12, 0.12, 0.13, 1

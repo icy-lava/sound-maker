@@ -6,8 +6,10 @@ class Sine extends require 'module.amp'
 		@setInputCount 1
 		@setOutputCount 0
 		@maxAmp = 1
+		@defaultAmp = 0.5
+		@defaultDB = util.amp2db 0.5
 		@db\action!
-		@slider.value = -6
+		@slider.value = @defaultDB
 	
 	_process: =>
 		ibuf = @getInput(1)

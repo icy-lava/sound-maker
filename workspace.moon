@@ -212,6 +212,10 @@ class Workspace
 			module = @getModuleAtPoint wpos
 			if module
 				if wpos.y < module.pos.y + module.labelHeight
+					for i, mod in ipairs @modules
+						if mod == module
+							table.insert @modules, table.remove @modules, i
+							break
 					@mode = {
 						kind: 'position'
 						fromPoint: wpos.copy
@@ -220,7 +224,7 @@ class Workspace
 					}
 					return
 				mpos = module.pos
-				module\mousepressed wpos.x - mpos.x, wpos.y - mpos.y - module.labelHeight
+				module\mousepressed wpos.x - mpos.x, wpos.y - mpos.y - module.labelHeight, button
 				@activeModule = module
 				return
 			
@@ -231,6 +235,13 @@ class Workspace
 				fromPoint: wpos.copy
 			}
 		if button == 2
+			module = @getModuleAtPoint wpos
+			if module
+				unless wpos.y < module.pos.y + module.labelHeight
+					mpos = module.pos
+					module\mousepressed wpos.x - mpos.x, wpos.y - mpos.y - module.labelHeight, button
+					@ractiveModule = module
+				return
 			@rmode = {
 				kind: 'cut'
 				fromPoint: wpos.copy
@@ -245,7 +256,7 @@ class Workspace
 		if button == 1
 			if @activeModule
 				mpos = @activeModule.pos
-				@activeModule\mousereleased wpos.x - mpos.x, wpos.y - mpos.y - @activeModule.labelHeight
+				@activeModule\mousereleased wpos.x - mpos.x, wpos.y - mpos.y - @activeModule.labelHeight, button
 				@activeModule = nil
 				return
 			if @mode.kind == 'connect'
@@ -263,6 +274,11 @@ class Workspace
 			@mode = { kind: 'none' }
 			return
 		if button == 2
+			if @ractiveModule
+				mpos = @ractiveModule.pos
+				@ractiveModule\mousereleased wpos.x - mpos.x, wpos.y - mpos.y - @ractiveModule.labelHeight, button
+				@ractiveModule = nil
+				return
 			if @rmode.kind == 'cut'
 				for module in *@modules
 					for i, connection in ltable.ripairs module.inputConnections
