@@ -1,13 +1,14 @@
 export lmath, vec2
 Slider = require 'widget.slider'
-class Sine extends require 'module'
-	name: 'sine'
+class Oscillator extends require 'module'
+	name: 'oscillator'
 	new: (...) =>
 		super ...
+		@size.y = 64 * 5
 		@setInputCount 1
 		@setOutputCount 1
 		@phase = 0
-		sine = @
+		oscillator = @
 		
 		do
 			@octave = Slider @, vec2(32, 24), vec2 @size.x - 64, 40
@@ -16,7 +17,7 @@ class Sine extends require 'module'
 			@octave.minValue = -8
 			@octave.maxValue = 8
 			@octave.step = 1
-			@octave.getLabel = => string.format('Octave: %d', sine.octave.value)
+			@octave.getLabel = => string.format('Octave: %d', oscillator.octave.value)
 		
 		do
 			@semitone = Slider @, vec2(32, 36 + 40), vec2 @size.x - 64, 40
@@ -25,7 +26,7 @@ class Sine extends require 'module'
 			@semitone.minValue = -12
 			@semitone.maxValue = 12
 			@semitone.step = 1
-			@semitone.getLabel = => string.format('Semitone: %d', sine.semitone.value)
+			@semitone.getLabel = => string.format('Semitone: %d', oscillator.semitone.value)
 		
 		do
 			@tune = Slider @, vec2(32, 48 + 40 * 2), vec2 @size.x - 64, 40
@@ -33,12 +34,29 @@ class Sine extends require 'module'
 			@tune.value = @tune.defaultValue
 			@tune.minValue = -100
 			@tune.maxValue = 100
-			@tune.getLabel = => string.format('Tune: %d', sine.tune.value)
+			@tune.getLabel = => string.format('Tune: %d', oscillator.tune.value)
+		
+		do
+			@osc = Slider @, vec2(32, 60 + 40 * 3), vec2 @size.x - 64, 40
+			@osc.defaultValue = 1
+			@osc.value = @osc.defaultValue
+			@osc.minValue = 1
+			@osc.maxValue = 4
+			@osc.step = 1
+			@osc.getLabel = => string.format('%s', oscillator.oscillators[@value][1])
+	
+	oscillators: {
+		{'sine', (t) -> math.sin(t % 1 * lmath.tau)},
+		{'triangle', (t) -> math.abs(((t + 0.5) % 1) * 2 - 1)},
+		{'square', (t) -> t % 1 < 0.5 and 1 or -1},
+		{'saw', (t) -> ((t + 0.5) % 1) * 2 - 1},
+	}
 	
 	_process: =>
 		ibuf = @getInput(1)
 		obuf = @getOutput(1)
 		phaseStep = 440 * 2 ^ (@octave.value + (@semitone.value + @tune.value / 100) / 12) / @workspace.sampleRate
+		osc = @oscillators[@osc.value][2]
 		for i = 0, @getBufferSize! - 1
-			obuf[i] = math.sin(@phase % 1 * lmath.tau)
+			obuf[i] = osc(@phase)
 			@phase = @phase + phaseStep * 2 ^ ibuf[i]

@@ -139,6 +139,11 @@ class Module
 			return widget if point.x >= tl.x and point.y >= tl.y and point.x < br.x and point.y < br.y
 		return nil
 	
+	hasInput: (index) =>
+		for connection in *@inputConnections
+			return true if connection[3] == index
+		return false
+	
 	setInputCount: (count) =>
 		while @getInputCount! < count
 			table.insert @inputs, buffer.new @getBufferSize!
