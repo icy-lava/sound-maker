@@ -1,5 +1,4 @@
 export lmath, vec2
-buffer = require 'buffer'
 Slider = require 'widget.slider'
 XY = require 'widget.xy'
 class XYPad extends require 'module'

@@ -35,6 +35,7 @@ function love.keypressed(...)
 	
 	if key == 'f11' or (key == 'return' and love.keyboard.isDown('lalt', 'ralt')) then
 		love.window.setFullscreen(not love.window.getFullscreen())
+		workspace.cam:setDirty()
 		return
 	end
 	

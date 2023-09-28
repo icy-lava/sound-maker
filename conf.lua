@@ -11,8 +11,10 @@ vec2 = lithium.vec2
 util = require 'util'
 
 function love.conf(t)
+	t.identity = 'sound-maker'
+	-- t.window.vsync = 0
 	t.window.title = 'Sound Maker'
-	t.window.display = 2
+	t.window.display = 1
 	t.window.height = 720
 	t.window.width = math.floor(t.window.height * 4 / 3)
 	t.window.resizable = true
