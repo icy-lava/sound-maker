@@ -3,8 +3,10 @@ buffer = require 'buffer'
 Slider = require 'widget.slider'
 class Delay extends require 'module'
 	name: 'delay'
+	inputLabels: {nil, 'delay (0-1)'}
 	new: (...) =>
 		super ...
+		@size.y = 64 * 3
 		@setInputCount 2
 		@setOutputCount 1
 		@delayIndex = 0

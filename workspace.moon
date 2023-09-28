@@ -67,9 +67,28 @@ class Workspace
 		wpos = @getMousePos!
 		lg.clear 0.1, 0.1, 0.12, 1
 		lg.setLineStyle 'rough'
+		lg.setLineJoin 'bevel'
 		
 		@cam\attach!
 		lg.push 'all'
+		
+		-- Draw buffer of hovered module
+		if @hoveredSocket
+			buf = if @hoveredSocket[3]
+				@hoveredSocket[1]\getInput @hoveredSocket[2]
+			else
+				@hoveredSocket[1]\getOutput @hoveredSocket[2]
+			lg.push 'all'
+			lg.origin!
+			line = {}
+			for i = 0, @bufferSize - 1
+				x = i / (@bufferSize - 1) * lg.getWidth!
+				y = (-buf[i] * 0.25 / 2 + 0.5) * lg.getHeight!
+				ltable.push line, x, y
+			lg.setColor 1, 1, 1, 0.05
+			lg.setLineWidth 5
+			lg.line line
+			lg.pop!
 		
 		-- Draw grid
 		do
@@ -96,7 +115,6 @@ class Workspace
 		
 		-- Draw module connections
 		lg.setLineWidth 4
-		lg.setLineJoin 'bevel'
 		for module in *@modules
 			for connection in *module.inputConnections
 				p1 = @getModuleOutputPosition connection[1], connection[2]
@@ -152,6 +170,41 @@ class Workspace
 			lg.setColor 0.4, 0.4, 0.7, 1
 			lg.setLineWidth 3 / @getZoomAmount!
 			lg.rectangle 'line', tl.x, tl.y, size.x, size.y, radius, radius, 32
+			lg.pop!
+		
+		-- Draw hovered socket label
+		if @hoveredSocket
+			lg.push 'all'
+			module = @hoveredSocket[1]
+			font = module.font
+			lg.setFont font
+			
+			label = if @hoveredSocket[3]
+				module.inputLabels[@hoveredSocket[2]]
+			else
+				module.outputLabels[@hoveredSocket[2]]
+			
+			label = label or (@hoveredSocket[3] and 'input' or 'output')
+			
+			point = if @hoveredSocket[3]
+				module\getInputPosition @hoveredSocket[2]
+			else
+				module\getOutputPosition @hoveredSocket[2]
+			point += module.pos
+			size = vec2 font\getWidth(label), font\getHeight!
+			xoffset = if @hoveredSocket[3]
+				-40 - size.x
+			else
+				40
+			point += vec2 xoffset, -size.y / 2
+			pad = vec2 8, 8
+			tl = point - pad
+			br = tl + size + pad * 2
+			boxSize = br - tl
+			lg.setColor 0.05, 0.05, 0.05, 0.4
+			lg.rectangle 'fill', tl.x, tl.y, boxSize.x, boxSize.y, 8, nil, 16
+			lg.setColor 0.5, 0.5, 0.55, 1
+			lg.print label, lmath.round(point.x), lmath.round(point.y)
 			lg.pop!
 		
 		lg.pop!

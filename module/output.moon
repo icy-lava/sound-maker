@@ -1,6 +1,7 @@
 export lmath, util
 class Sine extends require 'module.amp'
 	name: 'output'
+	inputLabels: {'system audio'}
 	new: (...) =>
 		super ...
 		@setInputCount 1

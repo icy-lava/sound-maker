@@ -6,6 +6,8 @@ class Module
 	name: 'undefined'
 	font: lg.newFont 18
 	labelHeight: 40
+	inputLabels: {}
+	outputLabels: {}
 	
 	new: (@workspace, @pos = vec2!) =>
 		@widgets = {}
