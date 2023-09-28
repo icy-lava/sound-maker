@@ -9,9 +9,9 @@ class Button extends require 'widget'
 			@action! if @action and x >= 0 and y >= 0 and x < @size.x and y < @size.y
 	_draw: =>
 		-- Draw background
-		lg.setColor 0.12, 0.12, 0.13, 1
+		lg.setColor 0.12, 0.12, 0.2, 1
 		lg.rectangle 'fill', 0, 0, @size.x, @size.y, 12, nil, 16
-		lg.setColor 0.17, 0.17, 0.19, 1
+		lg.setColor 0.20, 0.20, 0.28, 1
 		lg.setLineWidth 3
 		lg.rectangle 'line', 0, 0, @size.x, @size.y, 12, nil, 16
 		
