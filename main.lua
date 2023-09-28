@@ -1,6 +1,6 @@
 local Workspace = require 'workspace'
 local Module = require 'module'
-local Sine = require 'module.sine'
+local Oscillator = require 'module.oscillator'
 local Delay = require 'module.delay'
 local Output = require 'module.output'
 local Amp = require 'module.amp'
@@ -15,8 +15,8 @@ local workspace
 
 function love.load()
 	workspace = Workspace(sampleRate, channelCount)
-	local modA = Sine(workspace, vec2(600, 50))
-	local modA2 = Sine(workspace, vec2(800, 50))
+	local modA = Oscillator(workspace, vec2(600, 50))
+	local modA2 = Oscillator(workspace, vec2(800, 50))
 	local modB = Delay(workspace, vec2(100, 100))
 	local modC = Output(workspace, vec2(1000, 50))
 	local modD = Amp(workspace, vec2(1000, 550))

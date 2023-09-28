@@ -47,7 +47,7 @@ class Oscillator extends require 'module'
 	
 	oscillators: {
 		{'sine', (t) -> math.sin(t % 1 * lmath.tau)},
-		{'triangle', (t) -> math.abs(((t + 0.5) % 1) * 2 - 1)},
+		{'triangle', (t) -> math.abs(((t + 0.75) % 1) - 0.5) * 4 - 1},
 		{'square', (t) -> t % 1 < 0.5 and 1 or -1},
 		{'saw', (t) -> ((t + 0.5) % 1) * 2 - 1},
 	}
