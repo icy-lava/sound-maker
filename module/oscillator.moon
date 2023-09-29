@@ -73,6 +73,6 @@ class Oscillator extends require 'module'
 					canSync = false
 			else canSync = true
 			obuf[i] = osc(phase + pbuf[i]) * amp
-			phase = phase + phaseStep * 2 ^ fbuf[i]
+			phase += phaseStep * 2 ^ fbuf[i]
 		@phase = phase
 		@canSync = canSync

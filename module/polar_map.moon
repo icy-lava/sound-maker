@@ -1,15 +1,15 @@
 export lmath, vec2, util
 Toggle = require 'widget.toggle'
 class PolarMap extends require 'module'
-	name: 'bipolar <-> unipolar'
+	name: 'bipolar <=> unipolar'
 	new: (...) =>
 		super ...
 		@setInputCount 1
 		@setOutputCount 1
 		@size.y = 64 * 3
 		
-		b2u = 'bipolar -> unipolar'
-		u2b = 'unipolar -> bipolar'
+		b2u = 'bipolar => unipolar'
+		u2b = 'unipolar => bipolar'
 		@polar = Toggle @, vec2(32, 24), vec2 96 * 2, 40
 		@polar.label = b2u
 		@fromBipolar = true

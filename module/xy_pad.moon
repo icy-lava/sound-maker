@@ -10,7 +10,7 @@ class XYPad extends require 'module'
 		@setOutputCount 2
 		
 		do
-			@pad = XY @, vec2(32, 36), vec2 @size.x - 64, @size.x - 64
+			@pad = XY @, vec2(32, 24), vec2 @size.x - 64, @size.x - 64
 		
 		do
 			@smooth = Slider @, vec2(32, 24 + 52 * 6), vec2 @size.x - 64, 40
