@@ -4,7 +4,7 @@ lg = love.graphics
 
 class Module
 	name: 'undefined'
-	font: lg.newFont 18
+	font: lg.newFont 'font/Quicksand-SemiBold.ttf', 22
 	labelHeight: 40
 	inputLabels: {}
 	outputLabels: {}

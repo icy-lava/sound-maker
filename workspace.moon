@@ -6,8 +6,8 @@ lg = love.graphics
 
 class Workspace
 	gridSize: vec2 64, 64
-	infoFont: lg.newFont 20
-	panelFont: lg.newFont 16
+	infoFont: lg.newFont 'font/Quicksand-SemiBold.ttf', 22
+	panelFont: lg.newFont 'font/Quicksand-SemiBold.ttf', 20
 	new: (@sampleRate, @channelCount, @bitDepth = 16, @bufferCount = 4, @bufferSize = 1024) =>
 		@generation = 0
 		@lastGeneration = @generation - 1
@@ -233,6 +233,7 @@ class Workspace
 			-- lg.print 'Press TAB to toggle module panel\nPress ` to toggle grid snapping', offset.x, offset.y
 			if @panelOpen
 				font = @panelFont
+				lg.setFont font
 				lg.setColor 0.2, 0.2, 0.22, 0.5
 				lg.rectangle 'fill', 0, 0, @panelWidth, lg.getHeight!
 				for i, name in ipairs @moduleNames

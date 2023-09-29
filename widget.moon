@@ -3,7 +3,7 @@ lg = love.graphics
 class Widget
 	new: (@module, @pos = vec2!, @size = vec2 32, 32) =>
 		table.insert @module.widgets, @
-	font: lg.newFont 16
+	font: lg.newFont 'font/Quicksand-SemiBold.ttf', 18
 	
 	mousepressed: (...) => @_mousepressed ... if @_mousepressed
 	mousereleased: (...) => @_mousereleased ... if @_mousereleased
