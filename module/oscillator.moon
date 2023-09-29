@@ -2,14 +2,15 @@ export lmath, vec2
 Slider = require 'widget.slider'
 class Oscillator extends require 'module'
 	name: 'oscillator'
-	inputLabels: {'amplitude', 'octave offset'}
+	inputLabels: {'amplitude', 'phase offset', 'octave offset', 'sync (rising edge)'}
 	new: (...) =>
 		super ...
 		@size.y = 64 * 5
-		@setInputCount 2
+		@setInputCount 4
 		@setOutputCount 1
 		@phase = 0
 		oscillator = @
+		@canSync = true
 		
 		do
 			@octave = Slider @, vec2(32, 24), vec2 @size.x - 64, 40
@@ -55,12 +56,23 @@ class Oscillator extends require 'module'
 	
 	_process: =>
 		abuf = @getInput 1
-		fbuf = @getInput 2
+		pbuf = @getInput 2
+		fbuf = @getInput 3
+		sbuf = @getInput 4
 		obuf = @getOutput 1
+		phase = @phase
 		phaseStep = 440 * 2 ^ (@octave.value + (@semitone.value + @tune.value / 100) / 12) / @workspace.sampleRate
 		osc = @oscillators[@osc.value][2]
 		amp = 1
+		canSync = @canSync
 		for i = 0, @getBufferSize! - 1
 			amp = abuf[i] if @hasInput 1
-			obuf[i] = osc(@phase) * amp
-			@phase = @phase + phaseStep * 2 ^ fbuf[i]
+			if sbuf[i] > 0.5
+				if canSync
+					phase = 0
+					canSync = false
+			else canSync = true
+			obuf[i] = osc(phase + pbuf[i]) * amp
+			phase = phase + phaseStep * 2 ^ fbuf[i]
+		@phase = phase
+		@canSync = canSync
