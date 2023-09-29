@@ -58,3 +58,7 @@ end
 function love.draw()
 	workspace:draw()
 end
+
+function love.filedropped(...)
+	workspace:filedropped(...)
+end

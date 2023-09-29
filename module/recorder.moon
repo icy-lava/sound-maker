@@ -23,7 +23,7 @@ class Recorder extends require 'module'
 			@display = BufferDisplay @, vec2(32, 36), vec2 @size.x - 64, 64 * 3
 		
 		do
-			size = (@size.x - 32 * 2 - 16 * 3) / 4
+			size = (@size.x - 32 * 2 - 16 * 4) / 5
 			@play = Toggle @, vec2(32, 24 + 52 * 5 - 12), vec2 size, 40
 			@play.label = 'play'
 			
@@ -36,7 +36,13 @@ class Recorder extends require 'module'
 			
 			@loop = Toggle @, vec2(32 + (size + 16) * 3, 24 + 52 * 5 - 12), vec2 size, 40
 			@loop.label = 'loop'
-		
+			
+			@export = Button @, vec2(32 + (size + 16) * 4, 24 + 52 * 5 - 12), vec2 size, 40
+			@export.label = 'export'
+			-- @export.action = =>
+			-- 	filename = os.date '%Y-%m-%d_%H:%M:%S_'
+			-- 	filename ..= @module.workspace.generation
+			-- 	love.data.pack '<c4', 'fmt ', 
 		-- do
 		-- 	@smooth = Slider @, vec2(32, 24 + 52 * 6), vec2 @size.x - 64, 40
 		-- 	@smooth.defaultValue = 0.5

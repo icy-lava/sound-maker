@@ -428,6 +428,29 @@ class Workspace
 	resize: (width, height) =>
 		@cam\setDirty!
 	
+	filedropped: (file) =>
+		status, sdata = pcall love.sound.newSoundData, file
+		if status
+			mod = @spawnModule 'recorder', @getMousePos!
+			ccount = sdata\getChannelCount!
+			scount = sdata\getSampleCount!
+			i = 0
+			while true
+				t = i / @sampleRate
+				index = t * sdata\getSampleRate!
+				index0 = math.floor index
+				index1 = math.ceil index
+				fract = index % 1
+				break if index1 >= scount
+				bufIndex = 1 + math.floor i / @bufferSize
+				buf = mod.display.buffers[bufIndex] or buffer.new @bufferSize
+				mod.display.buffers[bufIndex] = buf
+				sample = 0
+				for c = 1, ccount
+					sample += lmath.lerp fract, sdata\getSample(index0, c), sdata\getSample(index1, c)
+				buf[i % @bufferSize] = sample / ccount
+				i += 1
+	
 	getModuleInputPosition: (module, index) => module.pos + module\getInputPosition index
 	getModuleOutputPosition: (module, index) => module.pos + module\getOutputPosition index
 	
@@ -505,6 +528,7 @@ class Workspace
 		mod.pos -= mod.size / 2
 		@addModule mod
 		mod\snapIfNeeded!
+		return mod
 	
 	addModule: (mod) =>
 		-- NOTE: We're setting the workspace in the constructor, that's kinda sus but whatever
