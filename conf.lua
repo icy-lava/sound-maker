@@ -8,6 +8,7 @@ lstring = lithium.string
 lmath = lithium.math
 color = lithium.color
 vec2 = lithium.vec2
+aabb2 = require 'aabb2'
 util = require 'util'
 
 function love.conf(t)
@@ -18,7 +19,7 @@ function love.conf(t)
 	t.window.height = 720
 	t.window.width = math.floor(t.window.height * 4 / 3)
 	t.window.resizable = true
-	t.window.msaa = 8
+	t.window.msaa = 4
 end
 
 function love.run()

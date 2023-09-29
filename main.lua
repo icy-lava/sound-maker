@@ -1,10 +1,4 @@
 local Workspace = require 'workspace'
-local Module = require 'module'
-local Oscillator = require 'module.oscillator'
-local Delay = require 'module.delay'
-local Output = require 'module.output'
-local Amp = require 'module.amp'
-local XYPad = require 'module.xy_pad'
 
 local sampleRate = 48000
 local bitDepth = 16
@@ -16,18 +10,6 @@ local workspace
 
 function love.load()
 	workspace = Workspace(sampleRate, channelCount)
-	local modA = Oscillator(workspace, vec2(600, 50))
-	local modA2 = Oscillator(workspace, vec2(800, 50))
-	local modB = Delay(workspace, vec2(100, 100))
-	local modC = Output(workspace, vec2(1000, 50))
-	local modD = Amp(workspace, vec2(1000, 550))
-	local modE = XYPad(workspace, vec2(1000, 1050))
-	workspace:addModule(modA)
-	workspace:addModule(modA2)
-	workspace:addModule(modB)
-	workspace:addModule(modC)
-	workspace:addModule(modD)
-	workspace:addModule(modE)
 end
 
 function love.keypressed(...)

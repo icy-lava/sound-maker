@@ -84,6 +84,14 @@ class Module
 	
 	getMousePos: => @workspace\getMousePos! - @pos - vec2 0, @labelHeight
 	
+	snapToGrid: =>
+		grid = @workspace.gridSize
+		@pos.x = lmath.roundStep @pos.x, grid.x
+		@pos.y = lmath.roundStep @pos.y, grid.y
+	
+	snapIfNeeded: =>
+		@snapToGrid! if @workspace.snapping
+	
 	mousepressed: (x, y, button) =>
 		widget = @getWidgetAtPoint vec2 x, y
 		if widget
