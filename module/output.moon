@@ -8,7 +8,7 @@ class Sine extends require 'module.amp'
 		@setOutputCount 0
 		@maxAmp = 1
 		@defaultAmp = 0.5
-		@defaultDB = util.amp2db 0.5
+		@defaultDB = util.amp2db 0.25
 		@db\action!
 		@slider.value = @defaultDB
 	

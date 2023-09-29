@@ -10,6 +10,8 @@ local workspace
 
 function love.load()
 	workspace = Workspace(sampleRate, channelCount)
+	workspace:spawnModule('output', vec2(64 * 3, 64 * -1))
+	workspace:spawnModule('oscillator', vec2(64 * -4, 0))
 end
 
 function love.keypressed(...)
