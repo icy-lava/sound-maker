@@ -27,7 +27,7 @@ class Workspace
 		-- @moduleNames = ltable.imap love.filesystem.getDirectoryItems'module', (filename) -> (filename\gsub '%.[^%.]+$', '')
 		@moduleNames = [(item\gsub '%.[^%.]+$', '') for item in *love.filesystem.getDirectoryItems'module']
 		@panelOpen = false
-		@panelWidth = 240
+		@panelWidth = 320
 		@panelOffset = 0
 	
 	update: (dt) =>
@@ -242,7 +242,8 @@ class Workspace
 					lg.setColor 0.4, 0.4, 0.45, 0.2
 					bbox\pad(-16)\drawText i, vec2(0, 0.5), true
 					lg.setColor 0.4, 0.4, 0.45, 1
-					bbox\drawText name, nil, true
+					label = require('module.' .. name).name
+					bbox\drawText label, nil, true
 			lg.pop!
 		
 		lg.pop!

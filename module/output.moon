@@ -1,5 +1,5 @@
 export lmath, util
-class Sine extends require 'module.amp'
+class Output extends require 'module.amp'
 	name: 'output'
 	inputLabels: {'system audio'}
 	new: (...) =>

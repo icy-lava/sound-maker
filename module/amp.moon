@@ -1,7 +1,7 @@
 export lmath, vec2, util
 Toggle = require 'widget.toggle'
 Slider = require 'widget.slider'
-class Sine extends require 'module'
+class Amp extends require 'module'
 	name: 'amp'
 	new: (...) =>
 		super ...

@@ -31,7 +31,7 @@ class XYPad extends require 'module'
 		dt = 1 / @workspace.sampleRate
 		for i = 0, @getBufferSize! - 1
 			xbuf[i] = x
-			ybuf[i] = y
+			ybuf[i] = -y
 			x = lmath.damp smooth, dt, x, tx
 			y = lmath.damp smooth, dt, y, ty
 		@pad.actual = vec2 x, y

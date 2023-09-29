@@ -13,6 +13,9 @@ class XY extends require 'widget'
 	_update: (dt) =>
 		if @isActive!
 			@target = @getMousePos! / @size * 2 - vec2 1, 1
+			if love.keyboard.isDown 'lctrl', 'rctrl'
+				@target.x = lmath.roundStep @target.x, 0.5
+				@target.y = lmath.roundStep @target.y, 0.5
 			@target.x = lmath.clamp @target.x, -1, 1
 			@target.y = lmath.clamp @target.y, -1, 1
 	_draw: =>
