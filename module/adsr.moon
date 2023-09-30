@@ -27,11 +27,15 @@ class Oscillator extends require 'module'
 			size = (@size.x - 32 * 2 - 16) / 2
 			
 			@attack = Slider @, vec2(32, 24), vec2 size, 40
+			@attack.minValue = 1e-9
 			@attack.defaultValue = (0.1 / 10) ^ (1 / 3)
 			@attack.value = @attack.defaultValue
 			@attack.getLabel = => string.format 'Attack: %s', util.seconds adsr\getAttack!
 			
 			@decay = Slider @, vec2(32 + size + 16, 24), vec2 size, 40
+			@decay.minValue = 1e-9
+			@decay.defaultValue = (0.1 / 10) ^ (1 / 3)
+			@decay.value = @decay.defaultValue
 			@decay.getLabel = => string.format 'Decay: %s', util.seconds adsr\getDecay!
 		
 		do
@@ -41,6 +45,9 @@ class Oscillator extends require 'module'
 			@sustain.getLabel = => string.format 'Sustain: %d%%', adsr\getSustain! * 100
 			
 			@release = Slider @, vec2(32 + size + 16, 36 + 40), vec2 size, 40
+			@release.minValue = 1e-9
+			@release.defaultValue = (0.25 / 10) ^ (1 / 3)
+			@release.value = @release.defaultValue
 			@release.getLabel = => string.format 'Release: %s', util.seconds adsr\getRelease!
 	
 	getAttack: => @attack.value ^ 3 * 10
@@ -71,6 +78,7 @@ class Oscillator extends require 'module'
 		canStart = @canStart
 		canStop = @canStop
 		sample = 1
+		
 		for i = 0, @getBufferSize! - 1
 			sample = ibuf[i] if hasInput1
 			if onbuf[i] > 0.5
@@ -96,7 +104,7 @@ class Oscillator extends require 'module'
 			else canStop = true
 			
 			if state == ATTACK
-				amp = phase / attack * (1 - releaseAmp) + releaseAmp
+				amp = phase / attack
 			elseif state == DECAY
 				amp = 1 - phase / decay * isustain
 			elseif state == SUSTAIN
