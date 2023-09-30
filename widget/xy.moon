@@ -6,7 +6,7 @@ class XY extends require 'widget'
 		@target = vec2!
 		@actual = vec2!
 		@smoothing = 0.5
-	_mousereleased: (x, y, button) =>
+	_mousepressed: (x, y, button) =>
 		if button == 2
 			@target = vec2!
 			@actual = vec2!

@@ -34,7 +34,7 @@ class Workspace
 		for module in *@modules
 			module\update dt
 		wpos = @getMousePos!
-		@hoveredSocket = @getSocketAtPoint wpos
+		@hoveredSocket = @getSocketAtPos wpos
 		if @mode.kind == 'position'
 			module = @mode.module
 			delta = @mode.fromPoint\delta wpos
@@ -317,7 +317,7 @@ class Workspace
 			return
 		wpos = @getMousePos!
 		if button == 1
-			socket = @getSocketAtPoint wpos
+			socket = @getSocketAtPos wpos
 			if socket
 				if socket[3] -- Try disconnect from input
 					for i, connection in ltable.ripairs socket[1].inputConnections
@@ -335,7 +335,7 @@ class Workspace
 				}
 				return
 			
-			module = @getModuleAtPoint wpos
+			module = @getModuleAtPos wpos
 			if module
 				if wpos.y < module.pos.y + module.labelHeight
 					for i, mod in ipairs @modules
@@ -361,7 +361,7 @@ class Workspace
 				fromPoint: wpos.copy
 			}
 		if button == 2
-			module = @getModuleAtPoint wpos
+			module = @getModuleAtPos wpos
 			if module
 				unless wpos.y < module.pos.y + module.labelHeight
 					mpos = module.pos
@@ -386,7 +386,7 @@ class Workspace
 				@activeModule = nil
 				return
 			if @mode.kind == 'connect'
-				to = @getSocketAtPoint @getMousePos!
+				to = @getSocketAtPos @getMousePos!
 				if to and to[3] -- Is input socket
 					output, outputIndex = @mode.from[1], @mode.from[2]
 					input, inputIndex = to[1], to[2]
@@ -494,16 +494,16 @@ class Workspace
 		mbr = mtl + module.size
 		return tl.x <= mtl.x and tl.y <= mtl.y and br.x >= mbr.x and br.y >= mbr.y
 	
-	getModuleAtPoint: (point) =>
+	getModuleAtPos: (pos) =>
 		return nil if @hoveredSocket
 		for _, module in ltable.ripairs @modules
 			tl = module.pos
 			br = tl + module.size
-			if point.x >= tl.x and point.y >= tl.y and point.x < br.x and point.y < br.y
+			if pos.x >= tl.x and pos.y >= tl.y and pos.x < br.x and pos.y < br.y
 				return module
 		return nil
 	
-	getSocketAtPoint: (point) =>
+	getSocketAtPos: (point) =>
 		minDist = math.huge
 		local minSocket
 		for module in *@modules

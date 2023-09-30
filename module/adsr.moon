@@ -6,7 +6,7 @@ DECAY   = 1
 SUSTAIN = 2
 RELEASE = 3
 
-class Oscillator extends require 'module'
+class ADSR extends require 'module'
 	name: 'adsr'
 	inputLabels: {'input', 'on (rising edge)', 'off (falling edge)'}
 	new: (...) =>
