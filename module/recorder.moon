@@ -1,28 +1,33 @@
 export lmath, vec2, love
 ffi = require 'ffi'
+buffer = require 'buffer'
 Button = require 'widget.button'
 Toggle = require 'widget.toggle'
 -- Slider = require 'widget.slider'
 BufferDisplay = require 'widget.buffer_display'
 class Recorder extends require 'module'
 	name: 'recorder'
-	inputLabels: {nil, 'phase offset', 'octave offset', 'sync (rising edge)', 'play (rising edge)', 'stop (falling edge)'}
+	inputLabels: {nil, 'phase offset', 'octave offset', 'sync (rising edge)', 'play (rising edge)', 'stop (falling edge)', 'record (rising edge)', 'stop recording (falling edge)'}
+	outputLabels: {nil, 'input passthrough'}
 	new: (...) =>
 		super ...
 		@size.x = 64 * 9
 		@size.y = 64 * 6
-		@setInputCount 6
-		@setOutputCount 1
+		@setInputCount 8
+		@setOutputCount 2
 		
 		rec = @
 		
+		@phase = 0
 		@canSync = true
 		@canPlay = true
 		@canStop = false
+		@canRecord = true
+		@canStopRecord = false
 		
 		do
 			@display = BufferDisplay @, vec2(32, 36), vec2 @size.x - 64, 64 * 3
-			@display.phase = 0
+			@display.phase = rec.phase
 		
 		do
 			size = (@size.x - 32 * 2 - 16 * 4) / 5
@@ -35,8 +40,13 @@ class Recorder extends require 'module'
 			@clear = Button @, vec2(32 + (size + 16) * 2, 24 + 52 * 5 - 12), vec2 size, 40
 			@clear.label = 'clear'
 			@clear.action = =>
-				rec.display\clear!
-				rec.phase = 0
+				if rec.display\hasSelection!
+					-- TODO: offset the phase properly
+					rec.phase = 0
+					rec.display\delete!
+				else
+					rec.phase = 0
+					rec.display\clear!
 			
 			@loop = Toggle @, vec2(32 + (size + 16) * 3, 24 + 52 * 5 - 12), vec2 size, 40
 			@loop.label = 'loop'
@@ -84,7 +94,8 @@ class Recorder extends require 'module'
 				assert love.filesystem.write filename, data
 				statusLine = string.format 'Last export: %s/%s', love.filesystem.getRealDirectory(filename), filename
 				@module.workspace.exportStatus = statusLine
-	
+	_update: (dt) =>
+		@clear.label = @display\hasSelection! and 'delete' or 'clear'
 	_process: =>
 		ibuf = @getInput 1
 		phbuf = @getInput 2
@@ -92,9 +103,14 @@ class Recorder extends require 'module'
 		sybuf = @getInput 4
 		pbuf = @getInput 5
 		sbuf = @getInput 6
+		rbuf = @getInput 7
+		rsbuf = @getInput 8
 		obuf = @getOutput 1
+		ptbuf = @getOutput 2
 		
-		phase = @display.phase
+		buffer.copy ptbuf, ibuf, @getBufferSize!
+		
+		phase = @phase
 		phaseStep = 1 / @workspace.sampleRate
 		display = @display
 		isPlaying = @play.status
@@ -103,6 +119,8 @@ class Recorder extends require 'module'
 		canSync = @canSync
 		canPlay = @canPlay
 		canStop = @canStop
+		canRecord = @canRecord
+		canStopRecord = @canStopRecord
 		
 		if isRecording
 			display\appendBuffer ibuf
@@ -113,16 +131,31 @@ class Recorder extends require 'module'
 					phase = 0
 					canSync = false
 			else canSync = true
+			
 			if pbuf[i] > 0.5
 				if canPlay
 					isPlaying = true
 					canPlay = false
 			else canPlay = true
+			
 			if sbuf[i] <= 0.5
 				if canStop
 					isPlaying = false
 					canStop = false
 			else canStop = true
+			
+			if rbuf[i] > 0.5
+				if canRecord
+					isRecording = true
+					canRecord = false
+			else canRecord = true
+			
+			if rsbuf[i] <= 0.5
+				if canStopRecord
+					isRecording = false
+					canStopRecord = false
+			else canStopRecord = true
+			
 			if isPlaying
 				obuf[i] = display\getSample phase + phbuf[i]
 				phase += phaseStep * 2 ^ fbuf[i]
@@ -137,8 +170,12 @@ class Recorder extends require 'module'
 					isPlaying = false
 					phase = 0
 					break
-		@display.phase = phase
+		@phase = phase
+		@display.phase = phase + phbuf[@getBufferSize! - 1]
 		@play.status = isPlaying
+		@record.status = isRecording
 		@canSync = canSync
 		@canPlay = canPlay
 		@canStop = canStop
+		@canRecord = canRecord
+		@canStopRecord = canStopRecord
