@@ -230,7 +230,9 @@ class Workspace
 			text = 'Press TAB to toggle module panel\nPress ` to toggle grid snapping'
 			inner\drawText text, vec2!, true
 			inner\drawText 'Press F11 to toggle fullscreen', vec2(1, 0), true
-			-- lg.print 'Press TAB to toggle module panel\nPress ` to toggle grid snapping', offset.x, offset.y
+			if @exportStatus
+				inner\drawText @exportStatus, vec2(1, 1), true
+				inner\padBottom(-font\getHeight! * font\getLineHeight!)\drawText 'Press F1 to open export folder', vec2(1, 1), true
 			if @panelOpen
 				font = @panelFont
 				lg.setFont font
@@ -287,6 +289,9 @@ class Workspace
 	keypressed: (key) =>
 		if key == 'delete'
 			@deleteSelected!
+			return
+		if key == 'f1'
+			assert love.system.openURL love.filesystem.getSaveDirectory!
 			return
 		if key == 'tab'
 			@panelOpen = not @panelOpen
