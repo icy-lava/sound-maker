@@ -4,8 +4,8 @@ class Shaper extends require 'module'
 	name: 'shaper'
 	new: (...) =>
 		super ...
-		@size.x = 64 * 6
-		@size.y = 64 * 7
+		@size.x = 64 * 5
+		@size.y = 64 * 6
 		@setInputCount 1
 		@setOutputCount 1
 		

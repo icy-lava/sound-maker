@@ -97,7 +97,7 @@ class Curves extends require 'widget'
 			if point == hoveredPoint
 				radius = 9
 				lg.setColor 0.7, 0.6, 0.8, 0.1
-				lg.circle 'fill', pos.x, pos.y, 20, 64
+				lg.circle 'fill', pos.x, pos.y, 20, 32
 				lg.setColor 0.7, 0.6, 0.8, 1
 			else
 				lg.setColor 0.4, 0.35, 0.7, 1
@@ -113,6 +113,7 @@ class Curves extends require 'widget'
 		-- Draw points again
 		for i = 1, #@points
 			point = @points[i]
+			continue if point == hoveredPoint
 			x = lmath.map point.x, -1, 1, 0, @size.x
 			y = lmath.map point.y, -1, 1, @size.y, 0
 			lg.setColor 0.4, 0.35, 0.7, 0.25
