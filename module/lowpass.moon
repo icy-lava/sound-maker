@@ -1,7 +1,7 @@
 export lmath, vec2
 Slider = require 'widget.slider'
 class Lowpass extends require 'module'
-	name: 'low pass'
+	name: 'low pass (bad)'
 	inputLabels: {nil, 'octave offset'}
 	new: (...) =>
 		super ...

@@ -1,5 +1,6 @@
--- require 'tl'.loader()
-require 'moonscript'
+-- require 'moonscript'
+
+VERSION = '0.1'
 
 lithium = require 'lithium.init'
 ltable = lithium.table
@@ -15,7 +16,7 @@ function love.conf(t)
 	t.identity = 'sound-maker'
 	-- t.window.vsync = 0
 	t.window.title = 'Sound Maker'
-	t.window.display = 1
+	-- t.window.display = 1
 	t.window.height = 720
 	t.window.width = math.floor(t.window.height * 4 / 3)
 	t.window.resizable = true

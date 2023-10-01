@@ -28,7 +28,7 @@ class ADSR extends require 'module'
 			
 			@attack = Slider @, vec2(32, 24), vec2 size, 40
 			@attack.minValue = 1e-9
-			@attack.defaultValue = (0.1 / 10) ^ (1 / 3)
+			@attack.defaultValue = (0.02 / 10) ^ (1 / 3)
 			@attack.value = @attack.defaultValue
 			@attack.getLabel = => string.format 'Attack: %s', util.seconds adsr\getAttack!
 			
