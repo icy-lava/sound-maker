@@ -1,4 +1,4 @@
-export love, vec2, lmath, ltable
+export love, vec2, lmath, ltable, aabb2
 buffer = require 'buffer'
 lg = love.graphics
 
@@ -8,6 +8,8 @@ class Module
 	labelHeight: 40
 	inputLabels: {}
 	outputLabels: {}
+	padNormal: 32
+	padTop: 24
 	
 	new: (@workspace, @pos = vec2!) =>
 		@widgets = {}
@@ -86,6 +88,9 @@ class Module
 		return nil
 	
 	getMousePos: => @workspace\getMousePos! - @pos - vec2 0, @labelHeight
+	getBBox: => aabb2.new @pos.x, @pos.x + @size.x, @pos.y, @pos.y + @size.y
+	getClientBBox: => @getBBox!\padTop -@labelHeight
+	getLayoutBBox: => @getClientBBox!\setPosition(0, 0)\padHorizontal(-@padNormal)\padBottom(-@padNormal)\padTop(-@padTop)
 	
 	snapToGrid: =>
 		grid = @workspace.gridSize

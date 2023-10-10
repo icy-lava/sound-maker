@@ -46,6 +46,16 @@ class Oscillator extends require 'module'
 			@osc.maxValue = 4
 			@osc.step = 1
 			@osc.getLabel = => string.format('%s', oscillator.oscillators[@value][1])
+		
+		pbox = @getLayoutBBox()
+		width = pbox\getWidth!
+		widgets = {@octave, @semitone, @tune, @osc}
+		bboxes = {}
+		for i, control in ipairs widgets
+			bboxes[i] = control\getBBox!\setWidth width
+		
+		for i, bbox in pbox\vbox bboxes
+			widgets[i]\setBBox bbox
 	
 	oscillators: {
 		{'sine', (t) -> math.sin(t % 1 * lmath.tau)},

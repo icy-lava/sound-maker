@@ -5,7 +5,7 @@ setmetatable(aabb2, {__call = function(_, ...) return aabb2.new(...) end})
 
 function aabb2.new(left, right, top, bottom)
 	assert(left and right and top and bottom)
-	return setmetatable({x1 = left, x2 = right, y1 = top, y2 = bottom}, aabb2):_fix()
+	return setmetatable({x1 = left, x2 = right, y1 = top, y2 = bottom}, aabb2)
 end
 
 function aabb2.fromPoint(point)
@@ -15,6 +15,45 @@ end
 function aabb2.fromLove()
 	local width, height = love.graphics.getDimensions()
 	return aabb2.new(0, width, 0, height)
+end
+
+function aabb2:vbox(bboxes, align, round)
+	align = align or 0.5
+	local shouldRound = false
+	if round then
+		shouldRound = true
+		if type(round) ~= 'number' then round = 1 end
+	end
+	local awidth, aheight = self:getDimensions()
+	local spacing = aheight
+	local count = #bboxes
+	assert(count >= 2) -- TODO: allow 1 element as well
+	for i = 1, count do
+		spacing = spacing - bboxes[i]:getHeight()
+	end
+	spacing = spacing / (count - 1)
+	local i = 0
+	local y = self.y1
+	return function()
+		i = i + 1
+		local bbox = bboxes[i]
+		if bbox == nil then
+			return nil
+		end
+		local width, height = bbox:getDimensions()
+		local x1 = self.x1 + align * (awidth - width)
+		local x2 = x1 + width
+		local y1 = y
+		local y2 = y1 + height
+		y = y + height + spacing
+		if shouldRound then
+			x1 = lmath.roundStep(x1, round)
+			x2 = lmath.roundStep(x2, round)
+			y1 = lmath.roundStep(y1, round)
+			y2 = lmath.roundStep(y2, round)
+		end
+		return i, aabb2.new(x1, x2, y1, y2)
+	end
 end
 
 function aabb2:fix()
@@ -57,15 +96,26 @@ function aabb2:padBottom(amount)
 	return self
 end
 
-function aabb2:padWidth(amount)
+function aabb2:padHorizontal(amount)
 	self.x1 = self.x1 - amount
 	self.x2 = self.x2 + amount
 	return self
 end
 
-function aabb2:padHeight(amount)
+function aabb2:padVertical(amount)
 	self.y1 = self.y1 - amount
 	self.y2 = self.y2 + amount
+	return self
+end
+
+function aabb2:getPosition()
+	return self.x1, self.y1
+end
+
+function aabb2:setPosition(x, y)
+	local dx, dy = x - self.x1, y - self.y1
+	self.x1, self.x2 = x, self.x2 + dx
+	self.y1, self.y2 = y, self.y2 + dy
 	return self
 end
 

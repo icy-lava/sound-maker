@@ -27,7 +27,7 @@ class Delay extends require 'module'
 					string.format('Max delay: %0.1fs', mdelay)
 		
 		do
-			@feedback = Slider @, vec2(32, 36 + 40), vec2 @size.x - 64, 40
+			@feedback = Slider @, vec2(32, 40 + 40), vec2 @size.x - 64, 40
 			@feedback.defaultValue = 0
 			@feedback.value = @feedback.defaultValue
 			@feedback.minValue = -1

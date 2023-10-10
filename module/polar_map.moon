@@ -20,10 +20,10 @@ class PolarMap extends require 'module'
 		
 		do
 			size = (@size.x - 32 * 2 - 16) / 2
-			@invertInput = Toggle @, vec2(32, 36 + 40), vec2 size, 40
+			@invertInput = Toggle @, vec2(32, 40 + 40), vec2 size, 40
 			@invertInput.label = 'invert in'
 			
-			@invertOutput = Toggle @, vec2(32 + size + 16, 36 + 40), vec2 size, 40
+			@invertOutput = Toggle @, vec2(32 + size + 16, 40 + 40), vec2 size, 40
 			@invertOutput.label = 'invert out'
 		
 		map = @

@@ -41,10 +41,10 @@ class ADSR extends require 'module'
 		do
 			size = (@size.x - 32 * 2 - 16) / 2
 			
-			@sustain = Slider @, vec2(32, 36 + 40), vec2 size, 40
+			@sustain = Slider @, vec2(32, 40 + 40), vec2 size, 40
 			@sustain.getLabel = => string.format 'Sustain: %d%%', adsr\getSustain! * 100
 			
-			@release = Slider @, vec2(32 + size + 16, 36 + 40), vec2 size, 40
+			@release = Slider @, vec2(32 + size + 16, 40 + 40), vec2 size, 40
 			@release.minValue = 1e-9
 			@release.defaultValue = (0.25 / 10) ^ (1 / 3)
 			@release.value = @release.defaultValue
