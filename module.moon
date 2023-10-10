@@ -37,20 +37,6 @@ class Module
 	draw: =>
 		lg.push 'all'
 		
-		-- Draw selectedness
-		if @selected
-			lg.push 'all'
-			pad = 24
-			radius = @labelHeight / 2 + pad
-			pad = vec2 pad, pad
-			size = @size + pad * 2
-			lg.setColor 0.6, 0.5, 0.9, 0.2
-			lg.rectangle 'fill', -pad.x, -pad.y, size.x, size.y, radius, nil, 32
-			lg.setLineWidth 4
-			lg.setColor 0.4, 0.4, 0.7, 1
-			lg.rectangle 'line', -pad.x, -pad.y, size.x, size.y, radius, nil, 32
-			lg.pop!
-		
 		lg.stencil -> lg.rectangle 'fill', 0, 0, @size.x, @size.y, @labelHeight / 2, nil, 32
 		lg.setStencilTest "greater", 0
 		
@@ -78,6 +64,16 @@ class Module
 			lg.pop!
 		
 		lg.setStencilTest!
+		
+		-- Draw selectedness
+		if @selected
+			lg.push 'all'
+			radius = @labelHeight / 2
+			lg.setLineWidth 3
+			lg.setColor 0.4, 0.4, 0.7, 1
+			lg.rectangle 'line', 0, 0, @size.x, @size.y, radius, nil, 32
+			lg.pop!
+		
 		lg.pop!
 	
 	getWidgetAtPos: (pos) =>

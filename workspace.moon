@@ -39,11 +39,11 @@ class Workspace
 			@getModuleAtPos wpos
 		else nil
 		if @mode.kind == 'position'
-			module = @mode.module
-			delta = @mode.fromPoint\delta wpos
-			pos = @mode.fromPos + delta
-			module.pos = pos
-			module\snapIfNeeded!
+			for i, module in ipairs @mode.modules
+				delta = @mode.fromPoint\delta wpos
+				pos = @mode.fromPoss[i] + delta
+				module.pos = pos
+				module\snapIfNeeded!
 		if @mode.kind == 'select'
 			@clearSelected!
 			for module in *@modules
@@ -360,16 +360,23 @@ class Workspace
 			
 			module = @getModuleAtPos wpos
 			if module
+				unless module.selected
+					@clearSelected! unless love.keyboard.isDown 'lshift', 'rshift'
+					module.selected = true
 				if wpos.y < module.pos.y + module.labelHeight
+					-- Raise the module up in z order
 					for i, mod in ipairs @modules
 						if mod == module
 							table.insert @modules, table.remove @modules, i
 							break
+					-- Only select dragged module when it's not already selected
+					selected = [mod for mod in *@modules when mod.selected]
+					positions = [mod.pos.copy for mod in *selected]
 					@mode = {
 						kind: 'position'
 						fromPoint: wpos.copy
-						fromPos: module.pos.copy
-						module: module
+						fromPoss: positions
+						modules: selected
 					}
 					return
 				mpos = module.pos
