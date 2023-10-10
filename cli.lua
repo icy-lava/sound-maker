@@ -1,6 +1,10 @@
 local argparse = require 'argparse'
 local parser = argparse()
 
+parser:flag '-v --version':action(function()
+	print('Sound Maker version ' .. VERSION)
+	os.exit()
+end)
 parser:flag '--moonscript' :default(false):hidden(true)
 parser:flag('--hint-overlay', 'Show a text overlay with some hotkeys (default)')
 parser:flag(
