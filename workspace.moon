@@ -1,4 +1,4 @@
-export love, util, vec2, aabb2, ltable, lmath
+export love, util, vec2, aabb2, ltable, lmath, option
 
 buffer = require 'buffer'
 cam11 = require 'cam11'
@@ -219,23 +219,26 @@ class Workspace
 			lg.print label, lmath.round(point.x), lmath.round(point.y)
 			lg.pop!
 		
-		-- Draw module selection panel
+		-- Draw module selection panel and hint overlay
 		do
 			lg.push 'all'
 			lg.origin!
-			font = @infoFont
-			font\setLineHeight 1.5
-			lg.setFont font
-			inner = aabb2.fromLove!
-			inner\padLeft -@panelWidth if @panelOpen
-			inner\pad -24
-			lg.setColor 1, 1, 1, 0.1
-			text = 'Press TAB to toggle module panel\nPress ` to toggle grid snapping'
-			inner\drawText text, vec2!, true
-			inner\drawText 'Press F11 to toggle fullscreen', vec2(1, 0), true
-			if @exportStatus
-				inner\drawText @exportStatus, vec2(1, 1), true
-				inner\padBottom(-font\getHeight! * font\getLineHeight!)\drawText 'Press F1 to open export folder', vec2(1, 1), true
+			
+			-- Draw hints
+			if option.hint_overlay
+				font = @infoFont
+				font\setLineHeight 1.5
+				lg.setFont font
+				inner = aabb2.fromLove!
+				inner\padLeft -@panelWidth if @panelOpen
+				inner\pad -24
+				lg.setColor 1, 1, 1, 0.1
+				text = 'Press TAB to toggle module panel\nPress ` to toggle grid snapping'
+				inner\drawText text, vec2!, true
+				inner\drawText 'Press F11 to toggle fullscreen', vec2(1, 0), true
+				if @exportStatus
+					inner\drawText @exportStatus, vec2(1, 1), true
+					inner\padBottom(-font\getHeight! * font\getLineHeight!)\drawText 'Press F1 to open export folder', vec2(1, 1), true
 			
 			-- Draw panel
 			if @panelOpen

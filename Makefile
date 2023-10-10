@@ -40,7 +40,7 @@ build/raw/%.ttf: %.ttf
 	busybox cp $< $@
 
 run:
-	$(LOVE) . --moonscript --display 2 --no-vsync
+	$(LOVE) . --moonscript --display 2 --no-vsync --no-hint-overlay
 
 build: $(BUILT_LOVE) $(BUILT_WINDOWS)
 
