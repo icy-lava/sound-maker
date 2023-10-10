@@ -17,7 +17,7 @@ function aabb2.fromLove()
 	return aabb2.new(0, width, 0, height)
 end
 
-function aabb2:_fix()
+function aabb2:fix()
 	if self.x1 > self.x2 then
 		local mid = (self.x1 + self.x2) / 2
 		self.x1, self.x2 = mid, mid
@@ -34,39 +34,39 @@ function aabb2:pad(amount)
 	self.x2 = self.x2 + amount
 	self.y1 = self.y1 - amount
 	self.y2 = self.y2 + amount
-	return self:_fix()
+	return self
 end
 
 function aabb2:padLeft(amount)
 	self.x1 = self.x1 - amount
-	return self:_fix()
+	return self
 end
 
 function aabb2:padRight(amount)
 	self.x2 = self.x2 + amount
-	return self:_fix()
+	return self
 end
 
 function aabb2:padTop(amount)
 	self.y1 = self.y1 - amount
-	return self:_fix()
+	return self
 end
 
 function aabb2:padBottom(amount)
 	self.y2 = self.y2 + amount
-	return self:_fix()
+	return self
 end
 
 function aabb2:padWidth(amount)
 	self.x1 = self.x1 - amount
 	self.x2 = self.x2 + amount
-	return self:_fix()
+	return self
 end
 
 function aabb2:padHeight(amount)
 	self.y1 = self.y1 - amount
 	self.y2 = self.y2 + amount
-	return self:_fix()
+	return self
 end
 
 function aabb2:getCenterX()
@@ -87,7 +87,7 @@ end
 
 function aabb2:setWidth(width)
 	local mid = self:getCenterX()
-	half = math.max(0, width) / 2
+	local half = math.max(0, width) / 2
 	self.x1, self.x2 = mid - half, mid + half
 	return self
 end
@@ -98,7 +98,7 @@ end
 
 function aabb2:setHeight(height)
 	local mid = self:getCenterY()
-	half = math.max(0, height) / 2
+	local half = math.max(0, height) / 2
 	self.y1, self.y2 = mid - half, mid + half
 	return self
 end
@@ -109,8 +109,8 @@ end
 
 function aabb2:setDimensions(width, height)
 	local x, y = self:getCenterX(), self:getCenterY()
-	halfWidth, halfHeight = math.max(0, width) / 2, math.max(0, height) / 2
-	self.x1, self.x2, self.y1, self.y2 = mid - halfWidth, mid + halfWidth, mid - halfHeight, mid + halfHeight
+	local halfWidth, halfHeight = math.max(0, width) / 2, math.max(0, height) / 2
+	self.x1, self.x2, self.y1, self.y2 = x - halfWidth, x + halfWidth, y - halfHeight, y + halfHeight
 	return self
 end
 
@@ -120,12 +120,12 @@ end
 
 function aabb2:drawText(text, align, round)
 	align = align or {x = 0.5, y = 0.5}
-	font = love.graphics.getFont()
+	local font = love.graphics.getFont()
 	local twidth, theight = font:getWidth(text), font:getHeight()
 	local bwidth, bheight = self:getDimensions()
 	local x, y = (bwidth - twidth) * align.x, (bheight - theight) * align.y
 	if round then
-		if type(round) ~= number then round = 1 end
+		if type(round) ~= 'number' then round = 1 end
 		x = lmath.roundStep(self.x1 + x, round)
 		y = lmath.roundStep(self.y1 + y, round)
 	end
@@ -154,7 +154,7 @@ function aabb2:getCopy()
 end
 
 local getters = {
-	copy = vec2.getCopy,
+	copy = aabb2.getCopy,
 }
 
 function aabb2:__index(key)
