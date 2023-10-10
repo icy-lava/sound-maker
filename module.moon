@@ -28,6 +28,9 @@ class Module
 		for widget in *@widgets
 			widget\update dt
 		@_update dt if @_update
+		@hoveredWidget = if @workspace.hoveredModule == @
+			@getWidgetAtPos @getMousePos!
+		else nil
 	
 	draw: =>
 		lg.push 'all'
@@ -75,11 +78,11 @@ class Module
 		lg.setStencilTest!
 		lg.pop!
 	
-	getWidgetAtPoint: (point) =>
+	getWidgetAtPos: (pos) =>
 		for _, widget in ltable.ripairs @widgets
 			tl = widget.pos
 			br = tl + widget.size
-			return widget if point.x >= tl.x and point.y >= tl.y and point.x < br.x and point.y < br.y
+			return widget if pos.x >= tl.x and pos.y >= tl.y and pos.x < br.x and pos.y < br.y
 		return nil
 	
 	getMousePos: => @workspace\getMousePos! - @pos - vec2 0, @labelHeight
@@ -93,7 +96,7 @@ class Module
 		@snapToGrid! if @workspace.snapping
 	
 	mousepressed: (x, y, button) =>
-		widget = @getWidgetAtPoint vec2 x, y
+		widget = @getWidgetAtPos vec2 x, y
 		if widget
 			wpos = widget.pos
 			widget\mousepressed x - wpos.x, y - wpos.y, button
@@ -131,6 +134,7 @@ class Module
 			lg.setColor 0.4, 0.35, 0.7, 1
 			lg.circle 'fill', pos.x, pos.y, 10, 64
 	
+	isHovered: => @workspace.hoveredModule == @
 	isSocketHovered: (index, isInput) =>
 		hovered = @workspace.hoveredSocket
 		return false unless hovered
@@ -141,13 +145,6 @@ class Module
 		
 	getBufferSize: => @workspace.bufferSize
 	getStart: => @generation * @workspace.bufferSize
-	
-	getHoveredWidget: (point) =>
-		for _, widget in ltable.ripairs @widgets
-			tl = widget.pos
-			br = tl + widget.size
-			return widget if point.x >= tl.x and point.y >= tl.y and point.x < br.x and point.y < br.y
-		return nil
 	
 	hasInput: (index) =>
 		for connection in *@inputConnections

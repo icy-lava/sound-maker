@@ -1,4 +1,4 @@
-export vec2
+export vec2, color
 format = string.format
 util = {}
 
@@ -11,5 +11,7 @@ util.db2amp = (db) -> 10 ^ (db / 20)
 util.seconds = (s) ->
 	return format '%0.1fms', s * 1000 if s < 1
 	return format '%0.1fs', s
+
+util.highlight = (amount) -> color.fromLove!\addedLightness(amount or 0.05)\love!
 
 return util

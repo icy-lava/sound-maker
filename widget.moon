@@ -14,5 +14,7 @@ class Widget
 	draw: => @_draw! if @_draw
 	
 	getMousePos: => @module\getMousePos! - @pos
+	shouldHighlight: => @isHovered! == (not @isActive!)
+	isHovered: => @module.hoveredWidget == @
 	isActive: => @ == @module.activeWidget
 	isRActive: => @ == @module.ractiveWidget

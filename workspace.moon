@@ -35,6 +35,9 @@ class Workspace
 			module\update dt
 		wpos = @getMousePos!
 		@hoveredSocket = @getSocketAtPos wpos
+		@hoveredModule = unless @hoveredSocket
+			@getModuleAtPos wpos
+		else nil
 		if @mode.kind == 'position'
 			module = @mode.module
 			delta = @mode.fromPoint\delta wpos
@@ -233,18 +236,35 @@ class Workspace
 			if @exportStatus
 				inner\drawText @exportStatus, vec2(1, 1), true
 				inner\padBottom(-font\getHeight! * font\getLineHeight!)\drawText 'Press F1 to open export folder', vec2(1, 1), true
+			
+			-- Draw panel
 			if @panelOpen
 				font = @panelFont
 				lg.setFont font
 				lg.setColor 0.2, 0.2, 0.22, 0.5
 				lg.rectangle 'fill', 0, 0, @panelWidth, lg.getHeight!
+				
+				mpos = vec2.fromLoveMouse!
 				for i, name in ipairs @moduleNames
 					bbox = @getPanelButtonBBox i
+					-- FIXME: Kind of a hack, we should check if the button is active instead of checking for mouse button
+					shouldHighlight = not love.mouse.isDown(1) and bbox\hasPoint mpos
+					
+					-- Draw button background
 					lg.setColor 0.17, 0.17, 0.19, 1
+					util.highlight! if shouldHighlight
 					bbox\drawRectangle 8
-					lg.setColor 0.4, 0.4, 0.45, 0.2
-					bbox\pad(-16)\drawText i, vec2(0, 0.5), true
+					
+					-- Draw button number
+					if i <= 10
+						i %= 10
+						lg.setColor 0.4, 0.4, 0.45, 0.2
+						util.highlight! if shouldHighlight
+						bbox\pad(-16)\drawText i, vec2(0, 0.5), true
+					
+					-- Draw button label
 					lg.setColor 0.4, 0.4, 0.45, 1
+					util.highlight! if shouldHighlight
 					label = require('module.' .. name).name
 					bbox\drawText label, nil, true
 			lg.pop!
